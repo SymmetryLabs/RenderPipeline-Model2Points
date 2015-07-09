@@ -12,6 +12,10 @@ cube = {}
 stripID = 0
 leds = []
 
+# 
+# PROCESS SPREADSHEET INTO APPROPRIATE PYTHON DATA STRUCTURE
+# 
+
 # Cycle through rows
 for row in range(2, st.get_highest_row()+1):
 # for row in range(2, 48):
@@ -80,6 +84,10 @@ for row in range(2, st.get_highest_row()+1):
 
 # points = empty(3)
 
+# 
+# PROCESS DATA STRUCTURE AND GENERATE EXACT POINTS
+# 
+
 for cubeIdx, cube in enumerate(cubes):
 	strips = cube['strips']
 	for strip in strips:
@@ -107,6 +115,10 @@ for cubeIdx, cube in enumerate(cubes):
 
 # set_printoptions(precision=2, suppress=True, threshold=nan)
 # print leds[-1]
+
+# 
+# OUTPUT POINTS TO A FILE
+# 
 
 with open('Dreamforce V6.csv','wb') as csvfile:
 	fieldnames = leds[0].keys()
