@@ -4,7 +4,7 @@ from numpy import *
 
 import csv, sys
 
-cube_sizes = {'Large': 24, 'Medium': 18, 'Small': 12}
+cube_sizes = {'Large': 24.0/2.0, 'Medium': 18.0/2.0, 'Small': 12.0/2.0}
 
 def generate_edges(width):
 	vertices = [ [1, 1, 1], [-1, 1, -1], [-1, -1, 1], [1, -1, -1] ]
@@ -62,7 +62,9 @@ def process(st, OLD_FORMAT=False):
 			stripID = 0
 
 			name = (st['A%d'%row].value)
-			size = name.split(',')[-1]
+			name, size = name.split(',')
+			cube_id = name.split('-')[1]
+			cube['cube_id'] = cube_id
 			# print size
 
 			# B through J are R
@@ -90,7 +92,9 @@ def process(st, OLD_FORMAT=False):
 
 		else:
 			# If we're at the beginning of a Cube
-			if cellIsCube( st['A'+str(row)].value ):
+			component = st['A'+str(row)].value
+
+			if cellIsCube( component ):
 				if bool(cube):
 					cubes.append(cube)
 				cube = {}
@@ -107,9 +111,11 @@ def process(st, OLD_FORMAT=False):
 				cube['R'] = R
 				cube['T'] = T
 
+				cube['cube_id'] = component.split('-')[1]
+
 
 			# Collecting strip coordinates
-			elif cellIsEdge( st['A'+str(row)].value ):
+			elif cellIsEdge( component ):
 				strip = {}
 
 				R0 = (st['B%d'%row].value, st['C%d'%row].value, st['D%d'%row].value)
@@ -136,9 +142,11 @@ def process(st, OLD_FORMAT=False):
 		for strip in strips:
 			p1 = array(strip['p1'])
 			p2 = array(strip['p2'])
-			for ledIdx in range (0,15):
+			num_leds_half_meter = 15
+			for ledIdx in range (num_leds_half_meter):
 				led = {}
-				p = ((15.-float(ledIdx))/15.)*p1 + (float(ledIdx)/15.)*p2
+				alpha = num_leds_half_meter-1
+				p = (( alpha -float(ledIdx))/alpha)*p1 + (float(ledIdx)/alpha)*p2
 
 				p = p*strip['R'] + strip['T']
 
@@ -148,7 +156,8 @@ def process(st, OLD_FORMAT=False):
 				led['px'] = p[0]
 				led['py'] = p[1]
 				led['pz'] = p[2]
-				led['cubeID'] = cubeIdx
+				# led['cubeID'] = cubeIdx
+				led['cubeID'] = cube['cube_id']
 				led['stripID'] = strip['id']
 				led['ledID'] = ledIdx
 
