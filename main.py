@@ -4,9 +4,9 @@ from numpy import *
 
 import csv, sys
 
+cube_sizes = {'Large': 24, 'Medium': 18, 'Small': 12}
 
-
-def generate_edges():
+def generate_edges(width):
 	vertices = [ [1, 1, 1], [-1, 1, -1], [-1, -1, 1], [1, -1, -1] ]
 	edges = []
 	for vertex in vertices:
@@ -15,8 +15,8 @@ def generate_edges():
 			second_vertex = vertex[:]
 			# Swap the sign of the vertex in the current dimension
 			second_vertex[dimension] = -1*second_vertex[dimension]
-			edge['p1'] = vertex
-			edge['p2'] = second_vertex
+			edge['p1'] = [val*width for val in vertex]
+			edge['p2'] = [val*width for val in second_vertex]
 
 			edge['id'] = len(edges)
 
@@ -61,6 +61,10 @@ def process(st, OLD_FORMAT=False):
 			cube['strips'] = []
 			stripID = 0
 
+			name = (st['A%d'%row].value)
+			size = name.split(',')[-1]
+			# print size
+
 			# B through J are R
 			# N through P are T in inches
 			R0 = (st['B%d'%row].value, st['C%d'%row].value, st['D%d'%row].value)
@@ -74,7 +78,7 @@ def process(st, OLD_FORMAT=False):
 
 			# OLD CUBE CODE
 			# Generate strips
-			strips = generate_edges()
+			strips = generate_edges( width=cube_sizes[size] )
 
 			# Add current Cube transform to strips
 			for strip in strips:
